@@ -1,19 +1,27 @@
+using System;
+using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
-using System.Threading.Tasks;
 using UnityEngine;
 
-public class AuthService : MonoBehaviour
+public class AuthService
 {
-    public async Task SignInAnonymously()
+    public async Task InitializeAndSignInAsync()
     {
-        await UnityServices.InitializeAsync();
-
-        if (!AuthenticationService.Instance.IsSignedIn)
+        try
         {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
+            await UnityServices.InitializeAsync();
 
-        Debug.Log($"Signed in! PlayerID: {AuthenticationService.Instance.PlayerId}");
+            if (!AuthenticationService.Instance.IsSignedIn)
+            {
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                Debug.Log("Signed in as: " + AuthenticationService.Instance.PlayerId);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Auth failed: " + e);
+            throw;
+        }
     }
 }

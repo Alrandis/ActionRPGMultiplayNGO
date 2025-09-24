@@ -26,8 +26,8 @@ public class NetworkManagerUI : MonoBehaviour
 
     private async void OnHostClicked()
     {
-        hostButton.gameObject.SetActive(false);
-        clientButton.gameObject.SetActive(false);
+        //hostButton.gameObject.SetActive(false);
+        //clientButton.gameObject.SetActive(false);
 
         // Создаем лобби и Relay через Bootstrap
         string joinCode = await NetworkBootstrap.Instance.CreateLobbyAndHost();
@@ -43,8 +43,8 @@ public class NetworkManagerUI : MonoBehaviour
 
     private async void OnClientClicked()
     {
-        hostButton.gameObject.SetActive(false);
-        clientButton.gameObject.SetActive(false);
+        //hostButton.gameObject.SetActive(false);
+        //clientButton.gameObject.SetActive(false);
 
         string joinCode = joinCodeInput.text;
         if (!string.IsNullOrEmpty(joinCode))

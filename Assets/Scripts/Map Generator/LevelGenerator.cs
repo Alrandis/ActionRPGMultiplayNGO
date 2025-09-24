@@ -5,6 +5,8 @@ using Unity.Netcode;
 
 public class LevelGenerator : NetworkBehaviour
 {
+    [SerializeField] private JoinCodePanel joinCodePanel;
+
     [Header("Room Settings")]
     public RoomData roomDatabase;          // ScriptableObject с RoomConnection
     public int targetRoomCount = 5;        // ћинимум обычных комнат до фазы закрыти€
@@ -156,7 +158,10 @@ public class LevelGenerator : NetworkBehaviour
 
         SpawnAllPlayers();
         SpawnBossInLastRoom();
+
+        joinCodePanel.OpenJoinPanel();
     }
+
 
 
     private GameObject InstantiateAndSpawn(GameObject prefab, Vector3 position = default, Quaternion rotation = default)

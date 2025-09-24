@@ -9,7 +9,7 @@ public class NetworkManagerUI : MonoBehaviour
     [SerializeField] private Button hostButton;
     [SerializeField] private Button clientButton;
     [SerializeField] private Button quitButton;
-    [SerializeField] private Button startGameButton;
+
 
     [Header("UI Fields")]
     [SerializeField] private TMP_InputField joinCodeInput;
@@ -21,9 +21,6 @@ public class NetworkManagerUI : MonoBehaviour
         clientButton.onClick.AddListener(OnClientClicked);
         quitButton.onClick.AddListener(() => Application.Quit());
 
-        startGameButton.gameObject.SetActive(false);
-        startGameButton.onClick.AddListener(OnStartGameClicked);
-
         joinCodeDisplay.gameObject.SetActive(false);
     }
 
@@ -34,16 +31,14 @@ public class NetworkManagerUI : MonoBehaviour
 
         // Создаем лобби и Relay через Bootstrap
         string joinCode = await NetworkBootstrap.Instance.CreateLobbyAndHost();
-
-        // Отображаем join code
-        if (!string.IsNullOrEmpty(joinCode) && joinCodeDisplay != null)
+        
+        if (NetworkManager.Singleton.IsHost)
         {
-            joinCodeDisplay.gameObject.SetActive(true);
-            joinCodeDisplay.text = $"Join Code: {joinCode}";
+            NetworkManager.Singleton.SceneManager.LoadScene(
+                "MainScene",
+                UnityEngine.SceneManagement.LoadSceneMode.Single
+            );
         }
-
-        // Показываем кнопку старта игры
-        startGameButton.gameObject.SetActive(true);
     }
 
     private async void OnClientClicked()
@@ -58,14 +53,5 @@ public class NetworkManagerUI : MonoBehaviour
         }
     }
 
-    private void OnStartGameClicked()
-    {
-        if (NetworkManager.Singleton.IsHost)
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene(
-                "MainScene",
-                UnityEngine.SceneManagement.LoadSceneMode.Single
-            );
-        }
-    }
+
 }

@@ -22,6 +22,8 @@ public class NetworkBootstrap : MonoBehaviour
     public int maxPlayers = 10;
 
     private string currentJoinCode;
+    public string CurrentJoinCode;
+
     private Lobby currentLobby;
     private bool isHost = false;
 
@@ -95,6 +97,7 @@ public class NetworkBootstrap : MonoBehaviour
             if (joinCodeText != null)
                 joinCodeText.text = $"Join Code: {currentJoinCode}";
 
+            CurrentJoinCode = currentJoinCode;
             return currentJoinCode;
         }
         catch (Exception e)

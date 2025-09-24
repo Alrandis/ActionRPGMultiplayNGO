@@ -210,8 +210,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -288,7 +288,6 @@ MonoBehaviour:
   hostButton: {fileID: 2136068403}
   clientButton: {fileID: 1838919264}
   quitButton: {fileID: 1977521403}
-  startGameButton: {fileID: 1444656570}
   joinCodeInput: {fileID: 732949650}
   joinCodeDisplay: {fileID: 634165328}
 --- !u!4 &488630103
@@ -318,7 +317,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83af3dfc1be635843a8fca696c10f3a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  joinCodeText: {fileID: 0}
   lobbyName: TestLobby
+  maxPlayers: 10
 --- !u!1 &546113957
 GameObject:
   m_ObjectHideFlags: 0
@@ -1416,8 +1417,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 2
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0

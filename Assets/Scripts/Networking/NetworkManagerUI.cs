@@ -1,43 +1,57 @@
+using TMPro;
 using UnityEngine;
-using Unity.Netcode;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 public class NetworkManagerUI : MonoBehaviour
 {
+    [Header("UI Buttons")]
     [SerializeField] private Button hostButton;
     [SerializeField] private Button clientButton;
     [SerializeField] private Button quitButton;
 
+
+    [Header("UI Fields")]
+    [SerializeField] private TMP_InputField joinCodeInput;
+    [SerializeField] private TextMeshProUGUI joinCodeDisplay;
+
     private void Awake()
     {
-        hostButton.onClick.AddListener(StartAsHost);
-        clientButton.onClick.AddListener(StartAsListener);
+        hostButton.onClick.AddListener(OnHostClicked);
+        clientButton.onClick.AddListener(OnClientClicked);
         quitButton.onClick.AddListener(() => Application.Quit());
+
+        joinCodeDisplay.gameObject.SetActive(false);
     }
 
-    private void StartAsHost()
+    private async void OnHostClicked()
     {
         hostButton.gameObject.SetActive(false);
         clientButton.gameObject.SetActive(false);
 
-        if (!NetworkManager.Singleton.IsListening)
+        // Создаем лобби и Relay через Bootstrap
+        string joinCode = await NetworkBootstrap.Instance.CreateLobbyAndHost();
+        
+        if (NetworkManager.Singleton.IsHost)
         {
-            NetworkManager.Singleton.StartHost();
+            NetworkManager.Singleton.SceneManager.LoadScene(
+                "MainScene",
+                UnityEngine.SceneManagement.LoadSceneMode.Single
+            );
         }
-
-        // После старта хоста сразу грузим MainScene
-        NetworkManager.Singleton.SceneManager.LoadScene("MainScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 
-    private void StartAsListener()
+    private async void OnClientClicked()
     {
         hostButton.gameObject.SetActive(false);
         clientButton.gameObject.SetActive(false);
 
-        if (!NetworkManager.Singleton.IsListening)
+        string joinCode = joinCodeInput.text;
+        if (!string.IsNullOrEmpty(joinCode))
         {
-            NetworkManager.Singleton.StartClient();
+            await NetworkBootstrap.Instance.JoinLobbyWithCode(joinCode);
         }
     }
+
+
 }
-

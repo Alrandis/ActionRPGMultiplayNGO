@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
@@ -11,10 +12,34 @@ using System.Threading.Tasks;
 
 public class NetworkBootstrap : MonoBehaviour
 {
-    public string lobbyName = "TestLobby";
-    private Lobby currentLobby;
+    public static NetworkBootstrap Instance { get; private set; }
 
-    async void Start()
+    [Header("UI")]
+    public Text joinCodeText;
+
+    [Header("Lobby Settings")]
+    public string lobbyName = "TestLobby";
+    public int maxPlayers = 10;
+
+    private string currentJoinCode;
+    public string CurrentJoinCode;
+
+    private Lobby currentLobby;
+    private bool isHost = false;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private async void Start()
     {
         await InitializeServices();
     }
@@ -25,11 +50,9 @@ public class NetworkBootstrap : MonoBehaviour
         {
             await Unity.Services.Core.UnityServices.InitializeAsync();
 
-            // Аутентификация (анонимная)
             if (!AuthenticationService.Instance.IsSignedIn)
             {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
-                Debug.Log("Signed in as: " + AuthenticationService.Instance.PlayerId);
             }
         }
         catch (Exception e)
@@ -38,21 +61,26 @@ public class NetworkBootstrap : MonoBehaviour
         }
     }
 
-    // Создание лобби и хостинг через Relay
-    public async void CreateLobbyAndHost()
+    // -------------------
+    // Хостинг
+    // -------------------
+    public async Task<string> CreateLobbyAndHost()
     {
+        if (currentJoinCode != null)
+            return currentJoinCode; // Уже есть код
+
+        isHost = true;
+
         try
         {
-            // Создаем лобби
-            currentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, 2);
-            Debug.Log("Lobby created: " + currentLobby.Id);
+            // 1) Создаем Lobby
+            currentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers);
 
-            // Relay allocation
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(2);
-            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-            Debug.Log("Relay JoinCode: " + joinCode);
+            // 2) Создаем Relay allocation
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
+            currentJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-            // Настройка транспорта Netcode
+            // 3) Настраиваем транспорт Netcode
             var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
             unityTransport.SetRelayServerData(
                 allocation.RelayServer.IpV4,
@@ -62,18 +90,34 @@ public class NetworkBootstrap : MonoBehaviour
                 allocation.ConnectionData
             );
 
-            // Запуск хоста
+            // 4) Старт хоста
             NetworkManager.Singleton.StartHost();
+
+            // 5) Вывод join code на UI
+            if (joinCodeText != null)
+                joinCodeText.text = $"Join Code: {currentJoinCode}";
+
+            CurrentJoinCode = currentJoinCode;
+            return currentJoinCode;
         }
         catch (Exception e)
         {
             Debug.LogError("CreateLobbyAndHost failed: " + e);
+            throw;
         }
     }
 
-    // Подключение к Relay и присоединение к существующему лобби
-    public async void JoinLobbyWithCode(string joinCode)
+    // -------------------
+    // Присоединение клиента
+    // -------------------
+    public async Task JoinLobbyWithCode(string joinCode)
     {
+        if (string.IsNullOrEmpty(joinCode))
+        {
+            Debug.LogError("Join code пустой!");
+            return;
+        }
+
         try
         {
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
@@ -88,9 +132,7 @@ public class NetworkBootstrap : MonoBehaviour
                 joinAllocation.HostConnectionData
             );
 
-            // Подключение клиента
             NetworkManager.Singleton.StartClient();
-            Debug.Log("Joined Relay with code: " + joinCode);
         }
         catch (Exception e)
         {

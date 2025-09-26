@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class WeaponHitbox : MonoBehaviour
 {
-    private Sword sword;
+    private Weapon sword;
     private Health health;
 
     private void Awake()
     {
-        sword = GetComponentInParent<Sword>();
+        sword = GetComponentInParent<Weapon>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)

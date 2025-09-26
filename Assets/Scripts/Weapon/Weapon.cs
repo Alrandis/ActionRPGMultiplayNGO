@@ -5,7 +5,7 @@ using Unity.Netcode.Components;
 using UnityEngine;
 
 
-public class Sword : NetworkBehaviour, IWeapon
+public class Weapon : NetworkBehaviour, IWeapon
 {
     private NetworkVariable<NetworkObjectReference> ownerRef = new();
     [SerializeField] private int damage = 20;

@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class AnimationEventProxy : MonoBehaviour
 {
-    private Sword sword;
+    private Weapon sword;
 
     private void Awake()
     {
-        sword = GetComponentInParent<Sword>();
+        sword = GetComponentInParent<Weapon>();
     }
 
     public void EnableHitbox() => sword?.EnableHitbox();
